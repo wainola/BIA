@@ -1,23 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import proposals from "./proposals.json";
 
 function App() {
+  const handleClick = (id) => (evt) => {
+    console.log("clicked");
+  };
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "10px",
+            gridAutoRows: "minmax(100px, auto)",
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          {proposals.map((p, idx) => (
+            <div
+              key={idx}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "400px",
+                width: "200px",
+                marginBotton: "30px",
+              }}
+            >
+              <img
+                src={p.picture}
+                style={{
+                  height: "300px",
+                  width: "200px",
+                }}
+              />
+              <div>
+                <h3>{p.name}</h3>
+                <button onClick={handleClick(p.id)}>Vote!</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
