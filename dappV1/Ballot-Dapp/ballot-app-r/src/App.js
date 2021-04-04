@@ -1,7 +1,9 @@
 import "./App.css";
 import proposals from "./proposals.json";
+import TruffleContract from "@truffle/contract";
 
 function App() {
+  console.log("GGG", TruffleContract);
   const handleClick = (id) => (evt) => {
     console.log("clicked");
   };

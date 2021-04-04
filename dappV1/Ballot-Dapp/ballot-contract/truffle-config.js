@@ -1,3 +1,4 @@
+const path = require("path");
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -103,4 +104,8 @@ module.exports = {
   db: {
     enabled: false,
   },
+  contracts_build_directory: path.join(
+    __dirname,
+    "../ballot-app-r/src/contracts"
+  ),
 };

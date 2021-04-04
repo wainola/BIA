@@ -1,3 +1,4 @@
+import TruffleContract from "@truffle/contract";
 import proposals from "./proposals.json";
 
 const App = {
