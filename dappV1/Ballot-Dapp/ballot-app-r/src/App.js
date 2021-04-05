@@ -1,9 +1,10 @@
 import "./App.css";
 import proposals from "./proposals.json";
-import TruffleContract from "@truffle/contract";
+// import TruffleContract from "@truffle/contract";
+import { Web3App } from "./web3";
 
 function App() {
-  console.log("GGG", TruffleContract);
+  console.log("GGG", Web3App.init());
   const handleClick = (id) => (evt) => {
     console.log("clicked");
   };

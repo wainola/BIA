@@ -1,5 +1,7 @@
-import TruffleContract from "@truffle/contract";
+import Web3 from "web3";
+// import contract from "@truffle/contract";
 import proposals from "./proposals.json";
+import Ballot from "./contracts/Ballot.json";
 
 const App = {
   web3Provider: null,
@@ -13,16 +15,32 @@ const App = {
     return App.initWeb3();
   },
   initWeb3: function () {
-    if (typeof web3 !== "undefined") {
-      App.web3Provider = web3.currentProvider;
+    if (typeof Web3 !== "undefined") {
+      App.web3Provider = Web3.currentProvider;
     } else {
       App.web3Provider = new Web3.providers.HttpProvider(App.url);
     }
 
-    web3 = new Web3(App.web3Provider);
-    ethereum.enable();
+    Web3 = new Web3(App.web3Provider);
+    window.ethereum.enable();
     App.populateAddress();
     return App.initContacts();
   },
-  initContracts: function () {},
+  initContracts: function () {
+    App.contracts.vote = window.TruffleContract(Ballot);
+    App.contracts.vote.setProvider(App.web3Provider);
+    App.getChairperson();
+    return App.bindEvents();
+  },
+  bindEvents: function () {},
+  populateAddress: function () {
+    new Web3(new Web3.providers.HttpProvider(App.url)).eth.getAccounts(
+      (err, accounts) => {
+        console.log("ACCOUNTS", accounts);
+      }
+    );
+  },
+  getChairperson: function () {},
 };
+
+export const Web3App = App;

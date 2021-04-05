@@ -32,6 +32,8 @@ App = {
     }
     web3 = new Web3(App.web3Provider);
 
+    console.log("eth", ethereum);
+
     ethereum.enable();
 
     App.populateAddress();
