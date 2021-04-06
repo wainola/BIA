@@ -1,14 +1,33 @@
+import { useEffect, useState } from "react";
 import "./App.css";
 import proposals from "./proposals.json";
 // import TruffleContract from "@truffle/contract";
 import { Web3App } from "./web3";
-import { initAdoptionContracts } from "./web3Adoption";
+import { initContracts, adopt } from "./web3Adoption";
 
 function App() {
-  console.log("GGG", Web3App.init());
-  initAdoptionContracts.initContracts();
+  const [contract, setContract] = useState(null);
+
+  const getContractInstance = async () => {
+    try {
+      const instanceContract = await initContracts();
+      setContract(instanceContract);
+    } catch (error) {
+      setContract({
+        error,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!contract) {
+      getContractInstance();
+    }
+  }, []);
+
   const handleClick = (id) => (evt) => {
     console.log("clicked");
+    adopt(id, contract);
   };
   return (
     <div className="App">
