@@ -1,7 +1,13 @@
 import Web3 from "web3";
-// import contract from "@truffle/contract";
+import TruffleContract from "@truffle/contract";
 import proposals from "./proposals.json";
 import Ballot from "./contracts/Ballot.json";
+
+const web3Provider = new Web3.providers.HttpProvider("http://localhost:7545");
+
+window.web3 = new Web3(web3Provider);
+
+console.log("web3", "web3" in window);
 
 const App = {
   web3Provider: null,
@@ -15,22 +21,30 @@ const App = {
     return App.initWeb3();
   },
   initWeb3: function () {
-    if (typeof Web3 !== "undefined") {
-      App.web3Provider = Web3.currentProvider;
-    } else {
-      App.web3Provider = new Web3.providers.HttpProvider(App.url);
-    }
-
-    Web3 = new Web3(App.web3Provider);
-    window.ethereum.enable();
-    App.populateAddress();
-    return App.initContacts();
+    // if (typeof Web3 !== "undefined") {
+    //   App.web3Provider = Web3.currentProvider;
+    // } else {
+    //   App.web3Provider = new Web3.providers.HttpProvider(App.url);
+    // }
+    // Web3 = new Web3(App.web3Provider);
+    // window.ethereum.enable();
+    // App.populateAddress();
+    return App.initContracts();
   },
   initContracts: function () {
-    App.contracts.vote = window.TruffleContract(Ballot);
-    App.contracts.vote.setProvider(App.web3Provider);
-    App.getChairperson();
-    return App.bindEvents();
+    const vote = TruffleContract(Ballot);
+    vote.setProvider(web3Provider);
+
+    vote
+      .deployed()
+      .then((instance) => instance)
+      .then((result) => {
+        // console.log("result", result.constructor.currentProvider);
+      });
+    // App.contracts.vote = window.TruffleContract(Ballot);
+    // App.contracts.vote.setProvider(App.web3Provider);
+    // App.getChairperson();
+    // return App.bindEvents();
   },
   bindEvents: function () {},
   populateAddress: function () {

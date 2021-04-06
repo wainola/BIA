@@ -30,6 +30,8 @@ App = {
       // If no injected web3 instance is detected, fallback to the TestRPC
       App.web3Provider = new Web3.providers.HttpProvider(App.url);
     }
+
+    console.log("web3", web3);
     web3 = new Web3(App.web3Provider);
 
     console.log("eth", ethereum);
