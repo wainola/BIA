@@ -3,11 +3,13 @@ import "./App.css";
 import proposals from "./proposals.json";
 // import TruffleContract from "@truffle/contract";
 import { Web3App } from "./web3";
-import { initContracts, adopt, makrAdopted } from "./web3Adoption";
+import { initContracts, adopt, makrAdopted, getAccounts } from "./web3Adoption";
 
 function App() {
   const [contract, setContract] = useState(null);
   const [adoptedPets, setAdopted] = useState([]);
+  const [accounts, setAccounts] = useState(null);
+  const [accountToUse, setAccountToUse] = useState("");
 
   const getContractInstance = async () => {
     try {
@@ -32,15 +34,33 @@ function App() {
     }
   }, [adoptedPets]);
 
-  console.log("adopted", adoptedPets);
+  useEffect(() => {
+    if ("web3" in window) {
+      getAccounts(setAccounts);
+    }
+  }, []);
 
   const handleClick = (id) => (evt) => {
-    console.log("clicked");
-    adopt(id, contract);
+    adopt(id, accountToUse, contract);
     setAdopted([...adoptedPets, id]);
   };
+
+  const handleChange = ({ target: { value } }) => setAccountToUse(value);
+
   return (
     <div className="App">
+      <div>
+        <h3>Accounts</h3>
+        <select onChange={handleChange}>
+          {accounts &&
+            Array.isArray(accounts) &&
+            accounts.map((account, idx) => (
+              <option key={idx} value={account}>
+                {account}
+              </option>
+            ))}
+        </select>
+      </div>
       <div
         style={{
           display: "flex",

@@ -28,22 +28,12 @@ export const makrAdopted = async (contractInstance) => {
   }
 };
 
-export const adopt = async (petId, contractInstance) => {
-  if ("web3" in window) {
-    return window.web3.eth.getAccounts(function (error, accounts) {
-      if (error) {
-        return console.error(error);
-      }
-
-      const account = accounts[1];
-
-      try {
-        const adoptionResult = contractInstance.adopt(petId, { from: account });
-        return resolveAdoptionStatus(adoptionResult);
-      } catch (error) {
-        console.error("Adoption_Result_Error", error);
-      }
-    });
+export const adopt = async (petId, account, contractInstance) => {
+  try {
+    const adoptionResult = contractInstance.adopt(petId, { from: account });
+    return resolveAdoptionStatus(adoptionResult);
+  } catch (error) {
+    console.error("Adoption_Result_Error", error);
   }
 };
 
@@ -54,4 +44,13 @@ const resolveAdoptionStatus = async (adoptionResult) => {
   } catch (error) {
     console.log("Adoption_Result_Resolution_Error", error);
   }
+};
+
+export const getAccounts = (accountUpdater) => {
+  return window.web3.eth.getAccounts(function (error, accounts) {
+    if (error) {
+      return console.error(error);
+    }
+    return accountUpdater(accounts);
+  });
 };
