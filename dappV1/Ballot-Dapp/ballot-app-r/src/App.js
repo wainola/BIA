@@ -3,10 +3,11 @@ import "./App.css";
 import proposals from "./proposals.json";
 // import TruffleContract from "@truffle/contract";
 import { Web3App } from "./web3";
-import { initContracts, adopt } from "./web3Adoption";
+import { initContracts, adopt, makrAdopted } from "./web3Adoption";
 
 function App() {
   const [contract, setContract] = useState(null);
+  const [adoptedPets, setAdopted] = useState([]);
 
   const getContractInstance = async () => {
     try {
@@ -25,9 +26,18 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (adoptedPets.length) {
+      makrAdopted(contract);
+    }
+  }, [adoptedPets]);
+
+  console.log("adopted", adoptedPets);
+
   const handleClick = (id) => (evt) => {
     console.log("clicked");
     adopt(id, contract);
+    setAdopted([...adoptedPets, id]);
   };
   return (
     <div className="App">

@@ -19,7 +19,14 @@ export const initContracts = async () => {
   }
 };
 
-const makrAdopted = () => {};
+export const makrAdopted = async (contractInstance) => {
+  try {
+    const adopters = await contractInstance.getAdopters.call();
+    console.log("Adopters", adopters);
+  } catch (error) {
+    console.log("ERROR_GETTING_ADOPTERS", error);
+  }
+};
 
 export const adopt = async (petId, contractInstance) => {
   if ("web3" in window) {
