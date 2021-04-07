@@ -7,54 +7,50 @@ const web3Provider = new Web3.providers.HttpProvider("http://localhost:7545");
 
 window.web3 = new Web3(web3Provider);
 
-console.log("web3", "web3" in window);
+export const initContracts = async () => {
+  const BallotContract = TruffleContract(Ballot);
+  BallotContract.setProvider(web3Provider);
 
-const App = {
-  web3Provider: null,
-  contracts: {},
-  names: [],
-  url: "http://127.0.0.1:7545",
-  chairPerson: null,
-  currentAccount: null,
-  init: function () {
-    proposals.forEach((proposal) => App.names.push(proposals.name));
-    return App.initWeb3();
-  },
-  initWeb3: function () {
-    // if (typeof Web3 !== "undefined") {
-    //   App.web3Provider = Web3.currentProvider;
-    // } else {
-    //   App.web3Provider = new Web3.providers.HttpProvider(App.url);
-    // }
-    // Web3 = new Web3(App.web3Provider);
-    // window.ethereum.enable();
-    // App.populateAddress();
-    return App.initContracts();
-  },
-  initContracts: function () {
-    const vote = TruffleContract(Ballot);
-    vote.setProvider(web3Provider);
-
-    vote
-      .deployed()
-      .then((instance) => instance)
-      .then((result) => {
-        // console.log("result", result.constructor.currentProvider);
-      });
-    // App.contracts.vote = window.TruffleContract(Ballot);
-    // App.contracts.vote.setProvider(App.web3Provider);
-    // App.getChairperson();
-    // return App.bindEvents();
-  },
-  bindEvents: function () {},
-  populateAddress: function () {
-    new Web3(new Web3.providers.HttpProvider(App.url)).eth.getAccounts(
-      (err, accounts) => {
-        console.log("ACCOUNTS", accounts);
-      }
-    );
-  },
-  getChairperson: function () {},
+  try {
+    const deployedInstance = await BallotContract.deployed();
+    return deployedInstance;
+  } catch (error) {
+    return error;
+  }
 };
 
-export const Web3App = App;
+export const vote = (proposalId, account, contractInstance) => {
+  try {
+    const voteResult = contractInstance.vote(proposalId, { from: account });
+    return resolveVoting(voteResult);
+  } catch (error) {
+    console.log("ERROR_VOTING", error);
+  }
+};
+
+const resolveVoting = async (voteResult) => {
+  try {
+    const result = await voteResult;
+    console.log("Voting result", result);
+  } catch (error) {
+    console.log("VOTING_RESULT", error);
+  }
+};
+
+export const register = async (account, contractInstance) => {
+  try {
+    const registerResult = contractInstance.register(account);
+    return resolveRegister(registerResult);
+  } catch (error) {
+    console.log("ERROR_REGISTERING", error);
+  }
+};
+
+const resolveRegister = async (registerResult) => {
+  try {
+    const result = await registerResult;
+    console.log("Register result", result);
+  } catch (error) {
+    console.log("ERROR_REGISTERING", error);
+  }
+};
