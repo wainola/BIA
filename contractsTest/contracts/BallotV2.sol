@@ -2,24 +2,25 @@ pragma solidity ^0.8.3;
 
 contract FactoryBallot {
     string[] proposals;
-    bytes32[] proposalsConverted;
+    bytes[] proposalsConverted;
 
     function convertToBytes(string memory proposalStored)
         private
-        returns (bytes32 result)
+        returns (bytes memory result)
     {
         bytes memory proposalToBytes = bytes(proposalStored);
-        if (proposalToBytes.length == 0) {
-            return 0x0;
-        }
-        assembly {
-            result := mload(add(proposalToBytes, 32))
-        }
-        return result;
+        // TODO: this for now is not necessary
+        // if (proposalToBytes.length == 0) {
+        //     return 0x0;
+        // }
+        // assembly {
+        //     result := mload(add(proposalToBytes, 32))
+        // }
+        return proposalToBytes;
     }
 
     function pushToArrayOfBytes(string memory proposal) private {
-        bytes32 result = convertToBytes(proposal);
+        bytes memory result = convertToBytes(proposal);
         proposalsConverted.push(result);
     }
 
@@ -36,7 +37,7 @@ contract FactoryBallot {
         pushToArrayOfBytes(proposal);
     }
 
-    function getArrayOfBytes() public view returns (bytes32[] memory data) {
+    function getArrayOfBytes() public view returns (bytes[] memory data) {
         return proposalsConverted;
     }
 }
