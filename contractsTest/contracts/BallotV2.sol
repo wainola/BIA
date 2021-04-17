@@ -3,13 +3,6 @@ pragma solidity ^0.8.3;
 contract FactoryBallot {
     address public chairperson;
 
-    struct Voter {
-        string name;
-        string lastname;
-        string email;
-        uint256 weight;
-    }
-
     struct Proposal {
         string title;
         string description;
@@ -17,10 +10,15 @@ contract FactoryBallot {
         uint256 weight;
     }
 
-    mapping(address => Voter) public voters;
+    struct Voter {
+        string name;
+        string lastname;
+        string email;
+        uint256 weight;
+        Proposal[] proposals;
+    }
 
-    // TODO proposals must have an unique identifier
-    mapping(address => Proposal) public proposals;
+    mapping(address => Voter) public voters;
 
     constructor() {
         chairperson = msg.sender;
@@ -86,20 +84,27 @@ contract FactoryBallot {
         string memory title,
         string memory description
     ) public payable checkAddressNotEmpty(addr) {
-        Proposal storage p = proposals[addr];
-        p.title = title;
-        p.description = description;
-        p.weight = msg.value;
+        Voter storage voter = voters[addr];
+
+        Proposal memory p = Proposal(title, description, 0, msg.value);
+        voter.proposals.push(p);
     }
 
-    function getProposal(address addr)
+    function getProposal(address addr, string memory proposalTitle)
         public
         view
         checkAddressNotEmpty(addr)
         returns (Proposal memory result)
     {
-        result = proposals[addr];
-        return result;
+        Voter memory v = voters[addr];
+        for (uint256 i = 0; i < v.proposals.length; i++) {
+            bytes32 str1 = keccak256(bytes(v.proposals[i].title));
+            bytes32 str2 = keccak256(bytes(proposalTitle));
+            if (str1 == str2) {
+                result = v.proposals[i];
+                return result;
+            }
+        }
     }
 
     function vote(address addr)
