@@ -98,6 +98,8 @@ contract FactoryBallot {
     {
         Voter memory v = voters[addr];
         for (uint256 i = 0; i < v.proposals.length; i++) {
+            // we do this becauses is the only way
+            // as far as I know, to compare to strings
             bytes32 str1 = keccak256(bytes(v.proposals[i].title));
             bytes32 str2 = keccak256(bytes(proposalTitle));
             if (str1 == str2) {
