@@ -45,6 +45,12 @@ contract FactoryBallot {
         _;
     }
 
+    // this method could be placed on a library file
+    function convertStringToBytes32(bytes bytesToConver) private returns (bytes32 dataConverted) {
+        bytes32 dataConverted = keccak256(bytesToConver);
+        return dataConverted;
+    }
+
     // CHAIRPERONS REGISTER VOTERS
     function registerVoters(
         address voter,
@@ -127,7 +133,16 @@ contract FactoryBallot {
         }
     }
 
-    function getVotesForProposal(address addr, string memory proposalTitle) {
-        
+    function getVotesForProposal(address addr, string memory proposalTitle) public view returns (uint256 voteCount) {
+        Voter memory voter = voters[addr];
+        Proposal[] memory proposals = voter.proposals;
+
+        bytes32 proposalTitleConverted = this.convertStringToBytes32(bytes(proposalTitle));
+        for(uint i = 0; i < proposals.length; i++) {
+            bytes32 proposalVoterTitleConverted = this.convertStringToBytes32(bytes(proposals[i].title));
+            if(proposalVoterTitleConverted == proposalTitleConverted){
+                return proposals[i].votes;
+            }
+        }
     }
 }
