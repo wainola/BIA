@@ -109,13 +109,25 @@ contract FactoryBallot {
         }
     }
 
-    function vote(address addr)
+    function vote(address addr, string memory proposalTitle)
         public
         payable
         checkAddressNotEmpty(msg.sender)
-        returns (bool success)
     {
-        success = true;
-        return success;
+        Voter storage voter = voters[addr];
+        Proposal[] storage proposals = voter.proposals;
+
+        bytes32 proposalTitleForComparison = keccak256(bytes(proposalTitle));
+        for (uint256 i = 0; i < proposals.length; i++) {
+            bytes32 proposalOfVoter = keccak256(bytes(proposals[i].title));
+            if (proposalTitleForComparison == proposalOfVoter) {
+                proposals[i].votes += 1;
+                return
+            }
+        }
+    }
+
+    function getVotesForProposal(address addr, string memory proposalTitle) {
+        
     }
 }
