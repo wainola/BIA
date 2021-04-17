@@ -34,6 +34,14 @@ contract FactoryBallot {
         _;
     }
 
+    modifier checkInfoVoter {
+        require(
+            msg.sender == chairperson,
+            "Only chairperson can see infor voter"
+        );
+        _;
+    }
+
     modifier checkAddressNotEmpty(address v) {
         require(bytes20(v).length != 0, "No address supplied");
         _;
@@ -55,7 +63,7 @@ contract FactoryBallot {
     function getInfoVoter(address voter)
         public
         view
-        onlyChairperson
+        checkInfoVoter
         checkAddressNotEmpty(voter)
         returns (
             string memory name,
@@ -71,6 +79,8 @@ contract FactoryBallot {
         return (name, lastname, email);
     }
 
+    // set the proposal and it could contain weight in order
+    // to increase the chances to be on top of the proposal list
     function setProposal(
         address addr,
         string memory title,
@@ -88,7 +98,17 @@ contract FactoryBallot {
         checkAddressNotEmpty(addr)
         returns (Proposal memory result)
     {
-        Proposal storage result = proposals[addr];
+        result = proposals[addr];
         return result;
+    }
+
+    function vote(address addr)
+        public
+        payable
+        checkAddressNotEmpty(msg.sender)
+        returns (bool success)
+    {
+        success = true;
+        return success;
     }
 }
