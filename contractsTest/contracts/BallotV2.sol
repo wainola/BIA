@@ -14,6 +14,7 @@ contract FactoryBallot {
         string title;
         string description;
         uint256 votes;
+        uint256 weight;
     }
 
     mapping(address => Voter) public voters;
@@ -74,9 +75,20 @@ contract FactoryBallot {
         address addr,
         string memory title,
         string memory description
-    ) public checkAddressNotEmpty(addr) {
+    ) public payable checkAddressNotEmpty(addr) {
         Proposal storage p = proposals[addr];
         p.title = title;
         p.description = description;
+        p.weight = msg.value;
+    }
+
+    function getProposal(address addr)
+        public
+        view
+        checkAddressNotEmpty(addr)
+        returns (Proposal memory result)
+    {
+        Proposal storage result = proposals[addr];
+        return result;
     }
 }
