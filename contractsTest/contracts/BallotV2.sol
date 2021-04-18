@@ -196,6 +196,9 @@ contract FactoryBallot {
         returns (Proposal[] memory ownProposals)
     {
         ownProposals = voters[msg.sender].proposals;
+        if (ownProposals.length == 0) {
+            revert("Not proposals for the address, operation reverted");
+        }
         return ownProposals;
     }
 }
