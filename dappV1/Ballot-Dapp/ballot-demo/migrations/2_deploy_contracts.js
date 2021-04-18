@@ -1,5 +1,5 @@
-const Ballot = artifacts.require("Ballot");
+const FactoryBallot = artifacts.require("FactoryBallot");
 
 module.exports = function (dpeloyer) {
-  dpeloyer.deploy(Ballot);
+  dpeloyer.deploy(FactoryBallot);
 };
