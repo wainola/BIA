@@ -9,7 +9,7 @@ initWeb3();
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App web3={window.web3 && window.web3} />
   </React.StrictMode>,
   document.getElementById("root")
 );

@@ -8,4 +8,13 @@ const initWeb3 = () => {
   window.web3 = new Web3(webProvider);
 };
 
+export const getAccounts = (web3, accountUpdater) => {
+  return web3.eth.getAccounts((error, accounts) => {
+    if (error) {
+      return console.error("ERROR_GETTING_ACCOUNTS", error);
+    }
+    return accountUpdater(accounts);
+  });
+};
+
 export default initWeb3;
