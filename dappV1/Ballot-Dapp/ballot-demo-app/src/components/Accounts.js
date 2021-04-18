@@ -26,6 +26,11 @@ const reducer = (state, action) => {
         voterToRegister: {},
         accountSelected: "",
       };
+    case "SET_CHAIRPERSON":
+      return {
+        ...state,
+        chairperson: action.payload,
+      };
     default:
       return state;
   }
@@ -37,9 +42,20 @@ const Accounts = ({ accounts, contractInstance }) => {
     infoVoter: {},
     accountSelected: "",
     voterToRegister: {},
+    chairperson: "",
   };
 
   const [state, dispatcher] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    if (accounts.length) {
+      console.log("accounts", accounts);
+      dispatcher({
+        type: "SET_CHAIRPERSON",
+        payload: accounts[0],
+      });
+    }
+  }, [accounts]);
 
   const handlechange = async ({ target: { value } }) =>
     dispatcher({
@@ -53,10 +69,24 @@ const Accounts = ({ accounts, contractInstance }) => {
       payload: { name, value },
     });
 
-  const register = (evt) => {
+  const register = async (evt) => {
     evt.preventDefault();
     if (!Object.values(state.voterToRegister).includes("")) {
       // register voter
+      const { voterToRegister, accountSelected, chairperson } = state;
+      const { deployedInstance } = contractInstance;
+      try {
+        const r = await deployedInstance.registerVoters(
+          accountSelected,
+          voterToRegister.name,
+          voterToRegister.lastname,
+          voterToRegister.email,
+          { from: chairperson }
+        );
+        console.log("RR", r);
+      } catch (error) {
+        console.log("Error", error);
+      }
     }
     return dispatcher({
       type: "CLEAR_USER_TO_REGISTER",
@@ -78,7 +108,7 @@ const Accounts = ({ accounts, contractInstance }) => {
             accounts.map((acc, idx) => {
               return idx === 0 ? (
                 <>
-                  <option value={"Select some account"} key={idx}>
+                  <option value={"Select some account"} key={"no-value"}>
                     {"Select an account"}
                   </option>
                   <option value={acc} key={idx + 1}>
