@@ -1,6 +1,5 @@
 import { webProvider } from "./web3";
 import "@truffle/contract";
-import * as FactoryBallotContract from "../contracts/FactoryBallot.json";
 
 function FactoryBallot(deployedInstance) {
   this.deployedInstance = deployedInstance;
@@ -21,6 +20,6 @@ FactoryBallot.setDeployedInstance = async function (contract) {
   }
 };
 
-const factoryBallot = FactoryBallot.setDeployedInstance(FactoryBallotContract);
+const factoryBallot = FactoryBallot;
 
 export default factoryBallot;

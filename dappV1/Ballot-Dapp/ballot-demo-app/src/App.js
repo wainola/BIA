@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
+import FactoryBallot from "./contracts/FactoryBallot.json";
+import { FactoryBallot as FactoryBallotProvider } from "./utils";
 import "./App.css";
-import { FactoryBallot } from "./utils";
 
 function App() {
+  const [contractInstance, setContractInstance] = useState(null);
   const setFactoryBallot = async () => {
     try {
-      const factoryBallot = await FactoryBallot;
-      console.log(factoryBallot);
+      const factoryBallot = await FactoryBallotProvider.setDeployedInstance(
+        FactoryBallot
+      );
+      setContractInstance(factoryBallot);
     } catch (error) {
       console.log("error", error);
     }
