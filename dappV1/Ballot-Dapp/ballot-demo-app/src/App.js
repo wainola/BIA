@@ -20,6 +20,8 @@ function App() {
     setFactoryBallot();
   }, []);
 
+  console.log("contract", contractInstance);
+
   return (
     <div className="App">
       <h1>Ballor App</h1>
