@@ -56,6 +56,14 @@ contract FactoryBallot {
         _;
     }
 
+    modifier checkNotChairperson {
+        require(
+            msg.sender != chairperson,
+            "Chairperson doesn't have proposals of his own"
+        );
+        _;
+    }
+
     // this method could be placed on a library file
     function convertStringToBytes32(bytes memory bytesToConver)
         internal
@@ -100,12 +108,13 @@ contract FactoryBallot {
 
     // set the proposal and it could contain weight in order
     // to increase the chances to be on top of the proposal list
-    function setProposal(
-        address addr,
-        string memory title,
-        string memory description
-    ) public payable checkAddressNotEmpty(addr) {
-        Voter storage voter = voters[addr];
+    function setProposal(string memory title, string memory description)
+        public
+        payable
+        checkNotChairperson
+        checkPay
+    {
+        Voter storage voter = voters[msg.sender];
 
         Proposal memory p = Proposal(title, description, 0, msg.value);
         voter.proposals.push(p);
@@ -114,6 +123,7 @@ contract FactoryBallot {
     function getProposal(address addr, string memory proposalTitle)
         public
         view
+        checkNotChairperson
         checkAddressNotEmpty(addr)
         checkProposalTitleNotEmpty(proposalTitle)
         returns (Proposal memory result)
@@ -167,5 +177,17 @@ contract FactoryBallot {
                 return proposals[i].votes;
             }
         }
+    }
+
+    function getOwnProposals()
+        public
+        payable
+        checkNotChairperson
+        checkAddressNotEmpty(msg.sender)
+        checkPay
+        returns (Proposal[] memory ownProposals)
+    {
+        ownProposals = voters[msg.sender].proposals;
+        return ownProposals;
     }
 }
