@@ -30,7 +30,7 @@ function App({ web3 }) {
     <div className="App">
       <h1>Ballor App</h1>
       <div>
-        <Accounts accounts={accounts} />
+        <Accounts accounts={accounts} contractInstance={contractInstance} />
       </div>
       <div>
         <h3>Proposals and voting</h3>
