@@ -123,6 +123,7 @@ contract FactoryBallot {
     {
         Voter storage voter = voters[msg.sender];
 
+        // note: msg.value represent also the weigth of the proposal
         Proposal memory p = Proposal(title, description, 0, msg.value);
         voter.proposals.push(p);
     }
@@ -189,10 +190,9 @@ contract FactoryBallot {
 
     function getOwnProposals()
         public
-        payable
+        view
         checkNotChairperson
         checkAddressNotEmpty(msg.sender)
-        checkPay
         returns (Proposal[] memory ownProposals)
     {
         ownProposals = voters[msg.sender].proposals;
