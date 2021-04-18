@@ -45,9 +45,24 @@ contract FactoryBallot {
         _;
     }
 
+    modifier checkPay {
+        require(msg.value != 0, "You must pay for this transaction");
+        _;
+    }
+
+    modifier checkProposalTitleNotEmpty(string memory proposalTitle) {
+        bytes memory p = bytes(proposalTitle);
+        require(p.length != 0, "You must provide the proposal title");
+        _;
+    }
+
     // this method could be placed on a library file
-    function convertStringToBytes32(bytes bytesToConver) private returns (bytes32 dataConverted) {
-        bytes32 dataConverted = keccak256(bytesToConver);
+    function convertStringToBytes32(bytes memory bytesToConver)
+        internal
+        pure
+        returns (bytes32 dataConverted)
+    {
+        dataConverted = keccak256(bytesToConver);
         return dataConverted;
     }
 
@@ -100,6 +115,7 @@ contract FactoryBallot {
         public
         view
         checkAddressNotEmpty(addr)
+        checkProposalTitleNotEmpty(proposalTitle)
         returns (Proposal memory result)
     {
         Voter memory v = voters[addr];
@@ -119,6 +135,7 @@ contract FactoryBallot {
         public
         payable
         checkAddressNotEmpty(msg.sender)
+        checkPay
     {
         Voter storage voter = voters[addr];
         Proposal[] storage proposals = voter.proposals;
@@ -128,19 +145,25 @@ contract FactoryBallot {
             bytes32 proposalOfVoter = keccak256(bytes(proposals[i].title));
             if (proposalTitleForComparison == proposalOfVoter) {
                 proposals[i].votes += 1;
-                return
+                break;
             }
         }
     }
 
-    function getVotesForProposal(address addr, string memory proposalTitle) public view returns (uint256 voteCount) {
+    function getVotesForProposal(address addr, string memory proposalTitle)
+        public
+        view
+        returns (uint256 voteCount)
+    {
         Voter memory voter = voters[addr];
         Proposal[] memory proposals = voter.proposals;
 
-        bytes32 proposalTitleConverted = this.convertStringToBytes32(bytes(proposalTitle));
-        for(uint i = 0; i < proposals.length; i++) {
-            bytes32 proposalVoterTitleConverted = this.convertStringToBytes32(bytes(proposals[i].title));
-            if(proposalVoterTitleConverted == proposalTitleConverted){
+        bytes32 proposalTitleConverted =
+            convertStringToBytes32(bytes(proposalTitle));
+        for (uint256 i = 0; i < proposals.length; i++) {
+            bytes32 proposalVoterTitleConverted =
+                convertStringToBytes32(bytes(proposals[i].title));
+            if (proposalVoterTitleConverted == proposalTitleConverted) {
                 return proposals[i].votes;
             }
         }
