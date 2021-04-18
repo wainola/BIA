@@ -1,12 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext, createContext } from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import FactoryBallot from "./contracts/FactoryBallot.json";
 import { FactoryBallot as FactoryBallotProvider, getAccounts } from "./utils";
-import { Accounts } from "./components";
+import { Accounts, Proposals } from "./components";
 import "./App.css";
+
+export const Context = createContext(null);
 
 function App({ web3 }) {
   const [contractInstance, setContractInstance] = useState(null);
   const [accounts, setAccounts] = useState([]);
+  const [accountSelected, setAccount] = useState(null);
+
   const setFactoryBallot = async () => {
     try {
       const factoryBallot = await FactoryBallotProvider.setDeployedInstance(
@@ -23,18 +28,29 @@ function App({ web3 }) {
     getAccounts(web3, setAccounts);
   }, []);
 
-  console.log("contract", contractInstance);
-  console.log("web3", accounts);
-
   return (
     <div className="App">
-      <h1>Ballor App</h1>
-      <div>
-        <Accounts accounts={accounts} contractInstance={contractInstance} />
-      </div>
-      <div>
-        <h3>Proposals and voting</h3>
-      </div>
+      <Context.Provider value={{ accountSelected, setAccount }}>
+        <Router>
+          <Switch>
+            <Route path="/create-proposals">
+              <Proposals
+                accounts={accounts}
+                contractInstance={contractInstance}
+              />
+              <Link to="/">Go back to main page</Link>
+            </Route>
+            <Route path="/">
+              <h1>Ballor App</h1>
+              <Accounts
+                accounts={accounts}
+                contractInstance={contractInstance}
+              />
+              <Link to="/create-proposals">Go to create proposal</Link>
+            </Route>
+          </Switch>
+        </Router>
+      </Context.Provider>
     </div>
   );
 }

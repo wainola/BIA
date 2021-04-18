@@ -1,4 +1,5 @@
-import React, { useReducer, useEffect, useRef } from "react";
+import React, { useReducer, useEffect, useRef, useContext } from "react";
+import { Context } from "../App";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -56,6 +57,7 @@ const reducer = (state, action) => {
 };
 
 const Accounts = ({ accounts, contractInstance }) => {
+  const context = useContext(Context);
   const initialState = {
     voters: {},
     infoVoter: {},
@@ -81,11 +83,14 @@ const Accounts = ({ accounts, contractInstance }) => {
     }
   }, [accounts]);
 
-  const handlechange = async ({ target: { value } }) =>
+  const handlechange = async ({ target: { value } }) => {
     dispatcher({
       type: "SELECT_ACCOUNT",
       payload: value,
     });
+
+    context.setAccount(value);
+  };
 
   const handleInputChange = ({ target: { name, value } }) =>
     dispatcher({
@@ -107,7 +112,6 @@ const Accounts = ({ accounts, contractInstance }) => {
           voterToRegister.email,
           { from: chairperson }
         );
-        console.log("RR", ref);
         ref.current.reset();
         return dispatcher({
           type: "SUCCESS_REGISTERING",
