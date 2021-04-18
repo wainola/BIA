@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect, useRef } from "react";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -31,6 +31,12 @@ const reducer = (state, action) => {
         ...state,
         chairperson: action.payload,
       };
+    case "SUCCESS_REGISTERING":
+      return {
+        ...state,
+        successRegistering: true,
+        voterToRegister: {},
+      };
     default:
       return state;
   }
@@ -43,7 +49,11 @@ const Accounts = ({ accounts, contractInstance }) => {
     accountSelected: "",
     voterToRegister: {},
     chairperson: "",
+    getInfoVoter: false,
+    successRegistering: false,
   };
+
+  const ref = useRef(null);
 
   const [state, dispatcher] = useReducer(reducer, initialState);
 
@@ -83,7 +93,11 @@ const Accounts = ({ accounts, contractInstance }) => {
           voterToRegister.email,
           { from: chairperson }
         );
-        console.log("RR", r);
+        console.log("RR", ref);
+        ref.current.reset();
+        return dispatcher({
+          type: "SUCCESS_REGISTERING",
+        });
       } catch (error) {
         console.log("Error", error);
       }
@@ -91,6 +105,19 @@ const Accounts = ({ accounts, contractInstance }) => {
     return dispatcher({
       type: "CLEAR_USER_TO_REGISTER",
     });
+  };
+
+  const getInfoVoter = async () => {
+    const { deployedInstance } = contractInstance;
+    const { accountSelected, chairperson } = state;
+    try {
+      const r = await deployedInstance.getInfoVoter(accountSelected, {
+        from: chairperson,
+      });
+      console.log("GETTING INFO VOTER", r);
+    } catch (error) {
+      console.log("Error on getting last voter", error);
+    }
   };
   return (
     <div>
@@ -123,8 +150,11 @@ const Accounts = ({ accounts, contractInstance }) => {
             })}
         </select>
         <div>
+          <button onClick={getInfoVoter}>Get Info of last voter!</button>
+        </div>
+        <div>
           {state.accountSelected.length !== 0 && (
-            <form action="" onSubmit={register}>
+            <form action="" onSubmit={register} ref={ref}>
               <h4>
                 Registering voter for account:{" "}
                 {state.accountSelected.length && state.accountSelected}
