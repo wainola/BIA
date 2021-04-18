@@ -37,6 +37,19 @@ const reducer = (state, action) => {
         successRegistering: true,
         voterToRegister: {},
       };
+    case "SET_LAST_INFO_VOTER": {
+      const {
+        payload: { name, lastname, email },
+      } = action;
+      return {
+        ...state,
+        lastVoterInfo: {
+          name,
+          lastname,
+          email,
+        },
+      };
+    }
     default:
       return state;
   }
@@ -51,6 +64,7 @@ const Accounts = ({ accounts, contractInstance }) => {
     chairperson: "",
     getInfoVoter: false,
     successRegistering: false,
+    lastVoterInfo: {},
   };
 
   const ref = useRef(null);
@@ -111,10 +125,14 @@ const Accounts = ({ accounts, contractInstance }) => {
     const { deployedInstance } = contractInstance;
     const { accountSelected, chairperson } = state;
     try {
-      const r = await deployedInstance.getInfoVoter(accountSelected, {
+      const response = await deployedInstance.getInfoVoter(accountSelected, {
         from: chairperson,
       });
-      console.log("GETTING INFO VOTER", r);
+      console.log("GETTING INFO VOTER", response);
+      dispatcher({
+        type: "SET_LAST_INFO_VOTER",
+        payload: response,
+      });
     } catch (error) {
       console.log("Error on getting last voter", error);
     }
@@ -151,6 +169,17 @@ const Accounts = ({ accounts, contractInstance }) => {
         </select>
         <div>
           <button onClick={getInfoVoter}>Get Info of last voter!</button>
+          <div>
+            {Object.values(state.lastVoterInfo).length !== 0 && (
+              <div>
+                <h4>Last voter registered!</h4>
+                <p>
+                  {state.lastVoterInfo.name} {state.lastVoterInfo.lastname}
+                </p>
+                <p>Email: {state.lastVoterInfo.email}</p>
+              </div>
+            )}
+          </div>
         </div>
         <div>
           {state.accountSelected.length !== 0 && (
