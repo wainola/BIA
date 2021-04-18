@@ -64,6 +64,13 @@ contract FactoryBallot {
         _;
     }
 
+    modifier checkAddressHasProposals(address addr) {
+        Voter memory v = voters[addr];
+        Proposal[] memory p = v.proposals;
+        require(p.length != 0, "Account doesn't have any proposals");
+        _;
+    }
+
     // this method could be placed on a library file
     function convertStringToBytes32(bytes memory bytesToConver)
         internal
@@ -144,7 +151,8 @@ contract FactoryBallot {
     function vote(address addr, string memory proposalTitle)
         public
         payable
-        checkAddressNotEmpty(msg.sender)
+        checkAddressNotEmpty(addr)
+        checkAddressHasProposals(addr)
         checkPay
     {
         Voter storage voter = voters[addr];
