@@ -1,0 +1,26 @@
+import { webProvider } from "./web3";
+import "@truffle/contract";
+import * as FactoryBallotContract from "../contracts/FactoryBallot.json";
+
+function FactoryBallot(deployedInstance) {
+  this.deployedInstance = deployedInstance;
+}
+
+FactoryBallot.setDeployedInstance = async function (contract) {
+  let ballotContract;
+  if ("TruffleContract" in window) {
+    ballotContract = window.TruffleContract(contract);
+    ballotContract.setProvider(webProvider);
+  }
+
+  try {
+    const deployedInstance = await ballotContract.deployed();
+    return new FactoryBallot(deployedInstance);
+  } catch (error) {
+    return error;
+  }
+};
+
+const factoryBallot = FactoryBallot.setDeployedInstance(FactoryBallotContract);
+
+export default factoryBallot;
