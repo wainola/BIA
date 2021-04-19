@@ -17,4 +17,14 @@ export const getAccounts = (web3, accountUpdater) => {
   });
 };
 
+export const getBalance = async (web3, accountAddress) => {
+  try {
+    const balance = await web3.eth.getBalance(accountAddress);
+    const balanceFromWeiToEth = web3.utils.fromWei(balance, "ether");
+    return balanceFromWeiToEth;
+  } catch (error) {
+    return error;
+  }
+};
+
 export default initWeb3;

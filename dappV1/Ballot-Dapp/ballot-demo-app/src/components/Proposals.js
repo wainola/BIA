@@ -1,5 +1,13 @@
-import React, { useContext, useEffect, useState, useReducer } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useReducer,
+  useRef,
+} from "react";
 import { Context } from "../App";
+import { getBalance } from "../utils/web3";
+import { BigNumber } from "bignumber.js";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -9,34 +17,45 @@ const reducer = (state, action) => {
       } = action;
       return {
         ...state,
-        [name]: value,
+        proposal: {
+          ...state.proposal,
+          [name]: value,
+        },
       };
-    case "WANT_TO_PAY": {
-      const {
-        payload: { name, value },
-      } = action;
+    case "ACCOUNT_BALANCE_FETCHED":
       return {
         ...state,
-        [name]: value,
+        balanceFromAccount: action.payload,
       };
-    }
     default:
       return state;
   }
 };
 
-const Proposals = ({ accounts, contractInstance }) => {
+const Proposals = ({ accounts, contractInstance, web3 }) => {
   const [voter, setVoter] = useState(null);
   const context = useContext(Context);
+  const ref = useRef(null);
 
   const initState = {
     proposal: {},
-    yes: false,
-    no: false,
+    balanceFromAccount: "",
   };
 
   const [state, dispatcher] = useReducer(reducer, initState);
-  console.log("account selected", context);
+  console.log("account selected", state);
+
+  const getBalanceFromAccount = async (web3, accountSelected) => {
+    try {
+      const balanceFromAccount = await getBalance(web3, accountSelected);
+      return dispatcher({
+        type: "ACCOUNT_BALANCE_FETCHED",
+        payload: balanceFromAccount,
+      });
+    } catch (error) {
+      return console.log("Error getting balanace", error);
+    }
+  };
 
   useEffect(() => {
     if (
@@ -44,11 +63,14 @@ const Proposals = ({ accounts, contractInstance }) => {
       Object.keys(context.ballotContext).length
     ) {
       const {
-        ballotContext: { lastVoterInfo },
+        ballotContext: { lastVoterInfo, accountSelected },
       } = context;
+
       setVoter({
         ...lastVoterInfo,
       });
+
+      getBalanceFromAccount(web3, accountSelected);
     }
   }, [context.ballotContext]);
 
@@ -61,16 +83,9 @@ const Proposals = ({ accounts, contractInstance }) => {
 
   const submit = async (evt) => {
     evt.preventDefault();
-  };
-
-  const handleRadio = ({ target: { name, value } }) => {
-    const v = value !== "false" ? true : false;
-    const nametoSend = v !== "false" ? "yes" : "no";
-
-    dispatcher({
-      type: "WANT_TO_PAY",
-      payload: { name: nametoSend, value: v },
-    });
+    if (Object.values(state.proposal).length) {
+      console.log(state.proposal);
+    }
   };
 
   return (
@@ -84,9 +99,12 @@ const Proposals = ({ accounts, contractInstance }) => {
           <span>Hello stranger, there is no account related to you</span>
         )}
       </h2>
+      {state.balanceFromAccount && (
+        <div>Your current balance is {state.balanceFromAccount} ETH</div>
+      )}
       <div>
         {voter && (
-          <form onSubmit={submit}>
+          <form onSubmit={submit} ref={ref}>
             <input
               type="text"
               name="title"
@@ -99,29 +117,13 @@ const Proposals = ({ accounts, contractInstance }) => {
               placeholder="Proposal description"
               onChange={handleChange}
             />
-            <div>
-              <h4>Do you want to pay for your proposal</h4>
-              <label for="yes">Yes</label>
-              <input
-                id="yes"
-                type="radio"
-                name="paying"
-                onChange={handleRadio}
-                value={true}
-                checked={state.yes}
-              />
-            </div>
-            <div>
-              <label for="no">No</label>
-              <input
-                id="no"
-                type="radio"
-                name="paying"
-                onChange={handleRadio}
-                value={true}
-                checked={state.no}
-              />
-            </div>
+            <input
+              type="number"
+              placeholder="Amount of eth to endorse"
+              name="eth"
+              onChange={handleChange}
+              value={0}
+            />
 
             <button type="submit">Submit proposal</button>
           </form>

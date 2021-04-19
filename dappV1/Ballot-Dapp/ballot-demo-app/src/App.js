@@ -35,6 +35,7 @@ function App({ web3 }) {
           <Switch>
             <Route path="/create-proposals">
               <Proposals
+                web3={web3}
                 accounts={accounts}
                 contractInstance={contractInstance}
               />
