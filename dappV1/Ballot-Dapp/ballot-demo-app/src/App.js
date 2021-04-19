@@ -10,7 +10,7 @@ export const Context = createContext(null);
 function App({ web3 }) {
   const [contractInstance, setContractInstance] = useState(null);
   const [accounts, setAccounts] = useState([]);
-  const [accountSelected, setAccount] = useState(null);
+  const [ballotContext, setBallotData] = useState(null);
 
   const setFactoryBallot = async () => {
     try {
@@ -30,7 +30,7 @@ function App({ web3 }) {
 
   return (
     <div className="App">
-      <Context.Provider value={{ accountSelected, setAccount }}>
+      <Context.Provider value={{ ballotContext, setBallotData }}>
         <Router>
           <Switch>
             <Route path="/create-proposals">

@@ -1,5 +1,6 @@
 import React, { useReducer, useEffect, useRef, useContext } from "react";
 import { Context } from "../App";
+import { getInfoVoter } from "../utils/helpers";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -75,13 +76,27 @@ const Accounts = ({ accounts, contractInstance }) => {
 
   useEffect(() => {
     if (accounts.length) {
-      console.log("accounts", accounts);
+      const chairperson = accounts[0];
       dispatcher({
         type: "SET_CHAIRPERSON",
-        payload: accounts[0],
+        payload: chairperson,
+      });
+
+      context.setBallotData({
+        ...context.ballotContext,
+        chairperson,
       });
     }
   }, [accounts]);
+
+  useEffect(() => {
+    if (Object.keys(state.lastVoterInfo).length) {
+      context.setBallotData({
+        ...context.ballotContext,
+        lastVoterInfo: state.lastVoterInfo,
+      });
+    }
+  }, [state.lastVoterInfo]);
 
   const handlechange = async ({ target: { value } }) => {
     dispatcher({
@@ -89,7 +104,10 @@ const Accounts = ({ accounts, contractInstance }) => {
       payload: value,
     });
 
-    context.setAccount(value);
+    context.setBallotData({
+      ...context.ballotContext,
+      accountSelected: value,
+    });
   };
 
   const handleInputChange = ({ target: { name, value } }) =>
@@ -125,22 +143,17 @@ const Accounts = ({ accounts, contractInstance }) => {
     });
   };
 
-  const getInfoVoter = async () => {
+  const callGetInfoVoter = async () => {
     const { deployedInstance } = contractInstance;
     const { accountSelected, chairperson } = state;
-    try {
-      const response = await deployedInstance.getInfoVoter(accountSelected, {
-        from: chairperson,
-      });
-      console.log("GETTING INFO VOTER", response);
-      dispatcher({
-        type: "SET_LAST_INFO_VOTER",
-        payload: response,
-      });
-    } catch (error) {
-      console.log("Error on getting last voter", error);
-    }
+    return getInfoVoter(
+      deployedInstance,
+      accountSelected,
+      chairperson,
+      dispatcher
+    );
   };
+
   return (
     <div>
       <div>
@@ -172,7 +185,7 @@ const Accounts = ({ accounts, contractInstance }) => {
             })}
         </select>
         <div>
-          <button onClick={getInfoVoter}>Get Info of last voter!</button>
+          <button onClick={callGetInfoVoter}>Get Info of last voter!</button>
           <div>
             {Object.values(state.lastVoterInfo).length !== 0 && (
               <div>
