@@ -123,7 +123,7 @@ const Accounts = ({ accounts, contractInstance }) => {
       const { voterToRegister, accountSelected, chairperson } = state;
       const { deployedInstance } = contractInstance;
       try {
-        const r = await deployedInstance.registerVoters(
+        const response = await deployedInstance.registerVoters(
           accountSelected,
           voterToRegister.name,
           voterToRegister.lastname,

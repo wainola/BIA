@@ -83,6 +83,23 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
     evt.preventDefault();
     if (Object.values(state.proposal).length) {
       console.log(state.proposal);
+      const { title, description, fee } = state;
+      const { deployedInstance } = contractInstance;
+      console.log("deployed", deployedInstance);
+      const {
+        ballotContext: { accountSelected },
+      } = context;
+
+      try {
+        const response = await deployedInstance.setProposal(
+          title,
+          description,
+          { from: accountSelected }
+        );
+        console.log("response", response);
+      } catch (error) {
+        console.log("error", error);
+      }
     }
   };
 
@@ -123,9 +140,8 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
             <input
               type="number"
               placeholder="Amount of eth to endorse"
-              name="eth"
+              name="fee"
               onChange={handleChange}
-              value={0}
             />
 
             <button type="submit">Submit proposal</button>
