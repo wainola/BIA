@@ -83,7 +83,9 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
     evt.preventDefault();
     if (Object.values(state.proposal).length) {
       console.log(state.proposal);
-      const { title, description, fee } = state;
+      const {
+        proposal: { title, description, fee },
+      } = state;
       const { deployedInstance } = contractInstance;
       console.log("deployed", deployedInstance);
       const {
@@ -94,7 +96,7 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
         const response = await deployedInstance.setProposal(
           title,
           description,
-          { from: accountSelected }
+          { from: accountSelected, value: web3.utils.toWei(fee, "ether") }
         );
         console.log("response", response);
       } catch (error) {
