@@ -1,13 +1,37 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useReducer } from "react";
 import { Context } from "../App";
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "SET_PROPOSAL":
+      const {
+        payload: { name, value },
+      } = action;
+      return {
+        ...state,
+        [name]: value,
+      };
+    default:
+      return state;
+  }
+};
 
 const Proposals = ({ accounts, contractInstance }) => {
   const [voter, setVoter] = useState(null);
   const context = useContext(Context);
+
+  const initState = {
+    proposal: {},
+  };
+
+  const [state, dispatcher] = useReducer(reducer, initState);
   console.log("account selected", context);
 
   useEffect(() => {
-    if (Object.keys(context.ballotContext).length) {
+    if (
+      context.ballotContext !== null ||
+      Object.keys(context.ballotContext).length
+    ) {
       const {
         ballotContext: { lastVoterInfo },
       } = context;
@@ -16,6 +40,17 @@ const Proposals = ({ accounts, contractInstance }) => {
       });
     }
   }, [context.ballotContext]);
+
+  const handleChange = ({ target: { name, value } }) => {
+    dispatcher({
+      type: "SET_PROPOSAL",
+      payload: { name, value },
+    });
+  };
+
+  const submit = async (evt) => {
+    evt.preventDefault();
+  };
 
   return (
     <div>
@@ -30,9 +65,20 @@ const Proposals = ({ accounts, contractInstance }) => {
       </h2>
       <div>
         {voter && (
-          <form action="">
-            <input type="text" placeholder="Proposal title" />
-            <input type="text" placeholder="Proposal description" />
+          <form onSubmit={submit}>
+            <input
+              type="text"
+              name="title"
+              placeholder="Proposal title"
+              onChange={handleChange}
+            />
+            <input
+              type="text"
+              name="description"
+              placeholder="Proposal description"
+              onChange={handleChange}
+            />
+
             <button type="submit">Submit proposal</button>
           </form>
         )}
