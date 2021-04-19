@@ -72,6 +72,8 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
 
   const [state, dispatcher] = useReducer(reducer, initState);
 
+  console.log("state", state);
+
   useEffect(() => {
     if (state.isProposalRegister) {
       getProposal(
