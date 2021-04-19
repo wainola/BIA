@@ -31,6 +31,11 @@ const reducer = (state, action) => {
         ...state,
         isProposalRegister: action.payload,
       };
+    case "SET_PROPOSAL_SAVED_BY_USER":
+      return {
+        ...state,
+        proposalRecentlySaved: action.payload,
+      };
     default:
       return state;
   }
@@ -46,6 +51,7 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
     balanceFromAccount: "",
     isProposalRegister: false,
     proposals: [],
+    proposalRecentlySaved: {},
   };
 
   const getProposal = async (deployedInstance, accountSelected) => {
@@ -59,11 +65,21 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
         title,
         { from: accountSelected }
       );
-      const { title, description, votes, weight } = proposalResponse;
+      const {
+        title: titleSaved,
+        description,
+        votes,
+        weight,
+      } = proposalResponse;
 
       dispatcher({
-        type: "SET_PROPOSAL_BY_USER",
-        payload: { title, description, votes, weight },
+        type: "SET_PROPOSAL_SAVED_BY_USER",
+        payload: {
+          title: titleSaved,
+          description,
+          votes,
+          weight: web3.utils.fromWei(weight, "ether"),
+        },
       });
     } catch (error) {
       console.log("Error", error);
@@ -171,28 +187,39 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
       )}
       <div>
         {voter && (
-          <form onSubmit={submit} ref={ref}>
-            <input
-              type="text"
-              name="title"
-              placeholder="Proposal title"
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="description"
-              placeholder="Proposal description"
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              placeholder="Amount of eth to endorse"
-              name="fee"
-              onChange={handleChange}
-            />
+          <>
+            <form onSubmit={submit} ref={ref}>
+              <input
+                type="text"
+                name="title"
+                placeholder="Proposal title"
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="description"
+                placeholder="Proposal description"
+                onChange={handleChange}
+              />
+              <input
+                type="number"
+                placeholder="Amount of eth to endorse"
+                name="fee"
+                onChange={handleChange}
+              />
 
-            <button type="submit">Submit proposal</button>
-          </form>
+              <button type="submit">Submit proposal</button>
+            </form>
+            <div>
+              {Object.values(state.proposalRecentlySaved).length !== 0 && (
+                <div>
+                  <p>Title: {state.proposalRecentlySaved.title}</p>
+                  <p>Dscription: {state.proposalRecentlySaved.description}</p>
+                  <p>Weight: {state.proposalRecentlySaved.weight} ETH</p>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>
