@@ -43,7 +43,6 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
   };
 
   const [state, dispatcher] = useReducer(reducer, initState);
-  console.log("account selected", state);
 
   const getBalanceFromAccount = async (web3, accountSelected) => {
     try {
@@ -92,9 +91,14 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
     <div>
       <h2>
         {voter ? (
-          <span>
-            Hello {voter.name} {voter.lastname}
-          </span>
+          <div>
+            <div>
+              <span>
+                Hello {voter.name} {voter.lastname}
+              </span>
+            </div>
+            <div>Account number: {context.ballotContext.accountSelected}</div>
+          </div>
         ) : (
           <span>Hello stranger, there is no account related to you</span>
         )}
