@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, createContext } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import FactoryBallot from "./contracts/FactoryBallot.json";
 import { FactoryBallot as FactoryBallotProvider, getAccounts } from "./utils";
-import { Accounts, Proposals } from "./components";
+import { Accounts, Proposals, ProposalByUser } from "./components";
 import "./App.css";
 
 export const Context = createContext(null);
@@ -33,7 +33,15 @@ function App({ web3 }) {
       <Context.Provider value={{ ballotContext, setBallotData }}>
         <Router>
           <Switch>
-            <Route path="/create-proposals">
+            <Route exact={true} path="/proposal-by-user">
+              <ProposalByUser
+                web3={web3}
+                accounts={accounts}
+                contractInstance={contractInstance}
+              />
+              <Link to="/">Go back to main page</Link>
+            </Route>
+            <Route exact={true} path="/create-proposals">
               <Proposals
                 web3={web3}
                 accounts={accounts}
@@ -48,6 +56,7 @@ function App({ web3 }) {
                 contractInstance={contractInstance}
               />
               <Link to="/create-proposals">Go to create proposal</Link>
+              <Link to="/proposal-by-user">Go to proposal by user</Link>
             </Route>
           </Switch>
         </Router>
