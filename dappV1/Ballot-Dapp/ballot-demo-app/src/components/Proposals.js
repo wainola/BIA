@@ -11,6 +11,15 @@ const reducer = (state, action) => {
         ...state,
         [name]: value,
       };
+    case "WANT_TO_PAY": {
+      const {
+        payload: { name, value },
+      } = action;
+      return {
+        ...state,
+        [name]: value,
+      };
+    }
     default:
       return state;
   }
@@ -22,6 +31,8 @@ const Proposals = ({ accounts, contractInstance }) => {
 
   const initState = {
     proposal: {},
+    yes: false,
+    no: false,
   };
 
   const [state, dispatcher] = useReducer(reducer, initState);
@@ -52,6 +63,16 @@ const Proposals = ({ accounts, contractInstance }) => {
     evt.preventDefault();
   };
 
+  const handleRadio = ({ target: { name, value } }) => {
+    const v = value !== "false" ? true : false;
+    const nametoSend = v !== "false" ? "yes" : "no";
+
+    dispatcher({
+      type: "WANT_TO_PAY",
+      payload: { name: nametoSend, value: v },
+    });
+  };
+
   return (
     <div>
       <h2>
@@ -78,6 +99,29 @@ const Proposals = ({ accounts, contractInstance }) => {
               placeholder="Proposal description"
               onChange={handleChange}
             />
+            <div>
+              <h4>Do you want to pay for your proposal</h4>
+              <label for="yes">Yes</label>
+              <input
+                id="yes"
+                type="radio"
+                name="paying"
+                onChange={handleRadio}
+                value={true}
+                checked={state.yes}
+              />
+            </div>
+            <div>
+              <label for="no">No</label>
+              <input
+                id="no"
+                type="radio"
+                name="paying"
+                onChange={handleRadio}
+                value={true}
+                checked={state.no}
+              />
+            </div>
 
             <button type="submit">Submit proposal</button>
           </form>
