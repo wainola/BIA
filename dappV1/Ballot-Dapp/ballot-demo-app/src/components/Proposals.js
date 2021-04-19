@@ -26,6 +26,11 @@ const reducer = (state, action) => {
         ...state,
         balanceFromAccount: action.payload,
       };
+    case "SUCCESS_REGISTER_PROPOSAL":
+      return {
+        ...state,
+        isProposalRegister: action.payload,
+      };
     default:
       return state;
   }
@@ -39,9 +44,42 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
   const initState = {
     proposal: {},
     balanceFromAccount: "",
+    isProposalRegister: false,
+    proposals: [],
+  };
+
+  const getProposal = async (deployedInstance, accountSelected) => {
+    const {
+      proposal: { title },
+    } = state;
+
+    try {
+      const proposalResponse = await deployedInstance.getProposal(
+        accountSelected,
+        title,
+        { from: accountSelected }
+      );
+      const { title, description, votes, weight } = proposalResponse;
+
+      dispatcher({
+        type: "SET_PROPOSAL_BY_USER",
+        payload: { title, description, votes, weight },
+      });
+    } catch (error) {
+      console.log("Error", error);
+    }
   };
 
   const [state, dispatcher] = useReducer(reducer, initState);
+
+  useEffect(() => {
+    if (state.isProposalRegister) {
+      getProposal(
+        contractInstance.deployedInstance,
+        context.ballotContext.accountSelected
+      );
+    }
+  }, [state.isProposalRegister]);
 
   const getBalanceFromAccount = async (web3, accountSelected) => {
     try {
@@ -82,23 +120,28 @@ const Proposals = ({ accounts, contractInstance, web3 }) => {
   const submit = async (evt) => {
     evt.preventDefault();
     if (Object.values(state.proposal).length) {
-      console.log(state.proposal);
       const {
         proposal: { title, description, fee },
       } = state;
+
       const { deployedInstance } = contractInstance;
-      console.log("deployed", deployedInstance);
+
       const {
         ballotContext: { accountSelected },
       } = context;
 
       try {
-        const response = await deployedInstance.setProposal(
-          title,
-          description,
-          { from: accountSelected, value: web3.utils.toWei(fee, "ether") }
-        );
-        console.log("response", response);
+        const {
+          receipt: { status },
+        } = await deployedInstance.setProposal(title, description, {
+          from: accountSelected,
+          value: web3.utils.toWei(fee, "ether"),
+        });
+
+        dispatcher({
+          type: "SUCCESS_REGISTER_PROPOSAL",
+          payload: status,
+        });
       } catch (error) {
         console.log("error", error);
       }
