@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { Context } from "../App";
 import { getBalance } from "../utils/web3";
-import { BigNumber } from "bignumber.js";
 
 const reducer = (state, action) => {
   switch (action.type) {
