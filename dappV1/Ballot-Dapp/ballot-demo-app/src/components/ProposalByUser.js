@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Context } from "../App";
 import { AccountSelector } from "./";
+import { getBalance } from "../utils";
 
 const ProposalsByUser = ({ web3, accounts, contractInstance }) => {
   const context = useContext(Context);
@@ -8,6 +9,7 @@ const ProposalsByUser = ({ web3, accounts, contractInstance }) => {
   const [account, setAccount] = useState(null);
   const [proposals, setProposals] = useState([]);
   const [accountSelected, setAccountFromAccounts] = useState(null);
+  const [voteSuccess, setVoteSuccess] = useState(false);
   const ref = useRef(null);
 
   const getOwnProposals = async () => {
@@ -41,9 +43,34 @@ const ProposalsByUser = ({ web3, accounts, contractInstance }) => {
     }
   }, []);
 
-  const execVote = async (address, proposalTitle) => {};
+  useEffect(() => {
+    if (voteSuccess) {
+      getOwnProposals();
+      setVoteSuccess(false);
+    }
+  }, [voteSuccess]);
 
-  const handleVote = (title) => () => execVote(accountSelected, title);
+  const execVote = async (address, accountSelected, proposalTitle) => {
+    console.log("::::", address, accountSelected, proposalTitle);
+    const { deployedInstance } = contractInstance;
+    try {
+      const {
+        receipt: { status },
+      } = await deployedInstance.vote(address, proposalTitle, {
+        from: accountSelected,
+        value: web3.utils.toWei("1", "ether"),
+      });
+      if (status) {
+        alert("Success!");
+        ref.current.selectedIndex = 0;
+        setVoteSuccess(true);
+      }
+    } catch (error) {
+      console.log("Error voting", error);
+    }
+  };
+
+  const handleVote = (title) => () => execVote(account, accountSelected, title);
 
   const handleChange = ({ target: { value } }) => {
     if (value === account) {
