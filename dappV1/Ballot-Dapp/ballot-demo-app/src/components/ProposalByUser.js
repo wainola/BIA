@@ -18,8 +18,12 @@ const ProposalsByUser = ({ web3, accounts, contractInstance, ...rest }) => {
       const proposals = await deployedInstance.getOwnProposals({
         from: accountSelected,
       });
-      console.log("Proposals", proposals);
-      setProposals(proposals);
+      const proposalMaped = proposals.map((proposal) => {
+        const [title, description, votes, weight] = proposal;
+        const weightOnEther = web3.utils.fromWei(weight, "ether");
+        return { title, description, votes, weight: weightOnEther };
+      });
+      setProposals(proposalMaped);
     } catch (error) {
       console.log("Error", error);
     }
@@ -31,7 +35,7 @@ const ProposalsByUser = ({ web3, accounts, contractInstance, ...rest }) => {
         ballotContext: { accountSelected, lastVoterInfo },
       } = context;
       getOwnProposals();
-      setVoter(...lastVoterInfo);
+      setVoter(lastVoterInfo);
       setAccount(accountSelected);
     }
   }, []);
@@ -46,8 +50,20 @@ const ProposalsByUser = ({ web3, accounts, contractInstance, ...rest }) => {
             </h2>
             <div>Account number {account}</div>
           </div>
-          <div>{proposals.length && <h3>WEas</h3>}</div>
         </>
+      )}
+      {proposals.length !== 0 && (
+        <div>
+          {proposals.map((proposal) => (
+            <div>
+              <p>{proposal.title}</p>
+              <p>
+                Description: {proposal.description} - votes: {proposal.votes} -
+                weight: {proposal.weight} ETH
+              </p>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
