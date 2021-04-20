@@ -2,7 +2,7 @@
 
 ## Setup
 
-For this app to work you are going to need to install truffle suite globally
+For this app to work you will need to install truffle suite globally
 
 ```bash
 npm i -g truffle
