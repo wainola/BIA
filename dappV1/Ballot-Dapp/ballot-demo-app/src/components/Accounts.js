@@ -1,6 +1,7 @@
 import React, { useReducer, useEffect, useRef, useContext } from "react";
 import { Context } from "../App";
 import { getInfoVoter } from "../utils/helpers";
+import { AccountSelector } from "./";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -98,7 +99,7 @@ const Accounts = ({ accounts, contractInstance }) => {
     }
   }, [state.lastVoterInfo]);
 
-  const handlechange = async ({ target: { value } }) => {
+  const handleChange = async ({ target: { value } }) => {
     dispatcher({
       type: "SELECT_ACCOUNT",
       payload: value,
@@ -160,30 +161,14 @@ const Accounts = ({ accounts, contractInstance }) => {
         <h3>Accounts</h3>
       </div>
       <div>
-        <select
-          name=""
-          id=""
-          onChange={handlechange}
-          value={state.accountSelected}
-        >
-          {accounts.length &&
-            accounts.map((acc, idx) => {
-              return idx === 0 ? (
-                <>
-                  <option value={"Select some account"} key={"no-value"}>
-                    {"Select an account"}
-                  </option>
-                  <option value={acc} key={idx + 1}>
-                    {acc}
-                  </option>
-                </>
-              ) : (
-                <option value={acc} key={idx + 1}>
-                  {acc}
-                </option>
-              );
-            })}
-        </select>
+        {accounts.length && (
+          <AccountSelector
+            handleChange={handleChange}
+            accounts={accounts}
+            value={state.accountSelected}
+            message="Select an account"
+          />
+        )}
         <div>
           <button onClick={callGetInfoVoter}>Get Info of last voter!</button>
           <div>
