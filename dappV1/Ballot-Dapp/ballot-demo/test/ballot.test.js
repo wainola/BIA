@@ -6,7 +6,7 @@ contract("FactoryBallot", async (accounts) => {
 
     const registered = accounts[1];
 
-    const r = await instance.registerVoters(
+    instance.registerVoters(
       registered,
       "name 1",
       "lastname 1",
@@ -14,23 +14,23 @@ contract("FactoryBallot", async (accounts) => {
       { from: accounts[0] }
     );
 
-    const registerVoter = await instance.getInfoVoter(registered, {
+    await instance.getInfoVoter(registered, {
       from: accounts[0],
     });
 
-    const registerProposal = await instance.setProposal(
+    await instance.setProposal("proposal 1", "description 1", {
+      from: registered,
+      value: web3.utils.toWei("1", "ether"),
+    });
+
+    const [propsalTitle] = await instance.getProposal(
+      registered,
       "proposal 1",
-      "description 1",
       {
         from: registered,
-        value: web3.utils.toWei("1", "ether"),
       }
     );
 
-    const proposalSaved = await instance.getProposal(registered, "proposal 1", {
-      from: registered,
-    });
-
-    console.log("proposal:", proposalSaved);
+    expect(propsalTitle).to.equal("proposal 1");
   });
 });
