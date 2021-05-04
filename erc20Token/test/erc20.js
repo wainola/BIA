@@ -101,7 +101,43 @@ contract("MyTokenERC20", function (accounts) {
               });
             });
           });
+
+          describe("when the sender transfer zero tokens", function () {
+            const amount = new BN("0");
+            it("transfer the requested amount", async function () {
+              await transfer.call(this, initialHolder, recipient, amount);
+
+              expect(
+                await this.token.balanceOf(initialHolder)
+              ).to.be.bignumber.equal(initialSupply);
+
+              expect(
+                await this.token.balanceOf(recipient)
+              ).to.be.bignumber.equal("0");
+            });
+
+            it("emits a transfer event", async function () {
+              const { logs } = await transfer.call(
+                this,
+                initialHolder,
+                recipient,
+                amount
+              );
+
+              expectEvent.inLogs(logs, "Transfer", {
+                from: initialHolder,
+                to: recipient,
+                value: amount,
+              });
+            });
+          });
         });
+      });
+    });
+
+    describe("ERC20 Approve", function () {
+      describe("when the sender has enough balance", function () {
+        const amount = initialSupply;
       });
     });
   });

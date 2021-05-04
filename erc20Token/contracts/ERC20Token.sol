@@ -98,7 +98,14 @@ contract MyTokenERC20 is Context, IERC20, IERC20MetaData {
         virtual
         override
         returns (bool)
-    {}
+    {
+        _approve(_msgSender(), spender, amount);
+        return true
+    }
+
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
+        
+    }
 
     function transferFrom(
         address sender,
