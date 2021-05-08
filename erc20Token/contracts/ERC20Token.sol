@@ -15,7 +15,7 @@ interface IERC20MetaData is IERC20 {
 contract MyTokenERC20 is Context, IERC20, IERC20MetaData {
     mapping(address => uint256) private _balances;
 
-    mapping(address => mapping(address => uint256)) private _allowance;
+    mapping(address => mapping(address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
 
@@ -90,21 +90,30 @@ contract MyTokenERC20 is Context, IERC20, IERC20MetaData {
         virtual
         override
         returns (uint256)
-    {}
+    {
+        return _allowances[owner][spender];
+    }
 
     function approve(address spender, uint256 amount)
         public
-        view
         virtual
         override
         returns (bool)
     {
         _approve(_msgSender(), spender, amount);
-        return true
+        return true;
     }
 
-    function _approve(address owner, address spender, uint256 amount) internal virtual {
-        
+    function _approve(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal virtual {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
     }
 
     function transferFrom(
